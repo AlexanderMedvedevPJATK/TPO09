@@ -72,7 +72,8 @@ public class ApiController {
         if (!bmrService.validateGender(gender)) {
             return bmrService.calculateBMR(gender, weight, height, age)
                     .map(bmr -> ResponseEntity.ok(bmr.getBMR() + "kcal"))
-                    .orElse(ResponseEntity.badRequest()
+                    .orElse(ResponseEntity
+                            .status(499)
                             .header("Reason",
                                     "invalid data, weight, height and age parameters must be positive numbers")
                             .build());
