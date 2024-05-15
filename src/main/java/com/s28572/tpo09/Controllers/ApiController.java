@@ -9,7 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/v1", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path = "/api/v1",
+                produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class ApiController {
 
     private final BMIService bmiService;
@@ -35,19 +36,47 @@ public class ApiController {
                         .build());
     }
 
+    @GetMapping(value = "/BMI", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> getBMIString(@RequestParam double weight, @RequestParam double height) {
+        return bmiService.calculateBMI(weight, height)
+                .map(bmi -> ResponseEntity.ok(String.valueOf(bmi.getDoubleBMI())))
+                .orElse(ResponseEntity.badRequest()
+                        .header("Reason",
+                                "invalid data, weight and height parameters must be positive numbers")
+                        .build());
+    }
+
     @GetMapping("/BMR/{gender}")
     public ResponseEntity<BMR> getBMR(@PathVariable String gender,
                                       @RequestParam double weight,
                                       @RequestParam double height,
                                       @RequestParam int age) {
-        if (!bmrService.validateGender(gender)) {
-            return ResponseEntity.badRequest().header("Reason", "Invalid gender data").build();
+        if (bmrService.validateGender(gender)) {
+            return bmrService.calculateBMR(gender, weight, height, age)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity
+                            .status(499)
+                            .header("Reason",
+                                    "invalid data, weight, height and age parameters must be positive numbers")
+                            .build());
         }
-        return bmrService.calculateBMR(gender, weight, height, age)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest()
-                        .header("Reason",
-                                "invalid data, weight, height and age parameters must be positive numbers")
-                        .build());
+        return ResponseEntity.badRequest().header("Reason", "Invalid gender data").build();
+    }
+
+    @GetMapping(value = "/BMR/{gender}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> getBMRString(@PathVariable String gender,
+                                               @RequestParam double weight,
+                                               @RequestParam double height,
+                                               @RequestParam int age) {
+
+        if (!bmrService.validateGender(gender)) {
+            return bmrService.calculateBMR(gender, weight, height, age)
+                    .map(bmr -> ResponseEntity.ok(bmr.getBMR() + "kcal"))
+                    .orElse(ResponseEntity.badRequest()
+                            .header("Reason",
+                                    "invalid data, weight, height and age parameters must be positive numbers")
+                            .build());
+        }
+        return ResponseEntity.badRequest().header("Reason", "Invalid gender data").build();
     }
 }

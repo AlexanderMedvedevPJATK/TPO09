@@ -1,14 +1,14 @@
 package com.s28572.tpo09.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.s28572.tpo09.Util.BMITypes;
 
-@JsonPropertyOrder({"weight", "height", "BMI", "type"})
 public class BMI {
 
     private double weight;
     private double height;
-    private int BMI;
+    private double BMI;
     private BMITypes type;
 
     private BMI() {
@@ -24,6 +24,11 @@ public class BMI {
     }
 
     public int getBMI() {
+        return (int) BMI;
+    }
+
+    @JsonIgnore
+    public double getDoubleBMI() {
         return BMI;
     }
 
@@ -40,8 +45,8 @@ public class BMI {
         return bmi;
     }
 
-    private int calculateBMI() {
-        return (int) (weight / (height * height));
+    private double calculateBMI() {
+        return Double.parseDouble(String.format("%.2f", (weight / (height * height))));
     }
 
     private BMITypes determineType() {
