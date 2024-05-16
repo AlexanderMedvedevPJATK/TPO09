@@ -1,8 +1,9 @@
 package com.s28572.tpo09.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.s28572.tpo09.Util.BMITypes;
+
+import java.text.DecimalFormat;
 
 public class BMI {
 
@@ -46,7 +47,7 @@ public class BMI {
     }
 
     private double calculateBMI() {
-        return Double.parseDouble(String.format("%.2f", (weight / (height * height))));
+        return Math.round((weight / (height * height)) * 100.0) / 100.0;
     }
 
     private BMITypes determineType() {

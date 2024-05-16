@@ -51,6 +51,8 @@ public class ApiController {
                                       @RequestParam double weight,
                                       @RequestParam double height,
                                       @RequestParam int age) {
+        System.out.println(gender);
+        System.out.println(bmrService.validateGender(gender));
         if (bmrService.validateGender(gender)) {
             return bmrService.calculateBMR(gender, weight, height, age)
                     .map(ResponseEntity::ok)
@@ -69,7 +71,7 @@ public class ApiController {
                                                @RequestParam double height,
                                                @RequestParam int age) {
 
-        if (!bmrService.validateGender(gender)) {
+        if (bmrService.validateGender(gender)) {
             return bmrService.calculateBMR(gender, weight, height, age)
                     .map(bmr -> ResponseEntity.ok(bmr.getBMR() + "kcal"))
                     .orElse(ResponseEntity
